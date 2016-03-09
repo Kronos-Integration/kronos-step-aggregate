@@ -17,46 +17,37 @@ function StreamPromise(stream, result) {
 }
 
 
-let stdoutRequest;
-let stderrRequest;
-let sys;
+let aggregate;
 let manager;
-let stdinEndpoint;
-let stdoutEndpoint;
+let inEndpoint;
+let out1Endpoint;
+let out2Endpoint;
 
 before(done => {
   ksm.manager({}, [require('../aggregate')]).then(m => {
-    sys = m.steps['kronos-aggregate'].createInstance({
+    aggregate = m.steps['kronos-aggregate'].createInstance({
       name: "myStep",
-      type: "kronos-aggregate"
+      type: "kronos-aggregate",
+      endpoints: {
+        "in": {
+          "in": true
+        },
+        "out1": {
+          "out": true
+        },
+        "out2": {
+          "out": true
+        }
+      }
     }, m);
 
-    stdinEndpoint = new endpoint.SendEndpoint('stdin-test');
-    stdinEndpoint.connected = sys.endpoints.stdin;
+    inEndpoint = new endpoint.SendEndpoint('in-test');
+    inEndpoint.connected = aggregate.endpoints.in;
 
-    stdoutEndpoint = new endpoint.ReceiveEndpoint('stdout-test');
-    sys.endpoints.stdout.connected = stdoutEndpoint;
+    out1Endpoint = new endpoint.ReceiveEndpoint('out1-test');
+    aggregate.endpoints.out1.connected = out1Endpoint;
 
-    stdoutEndpoint.receive = (request, before) => {
-      //console.log(`stdout: ${before.info.id}`);
-      stdoutRequest = request;
-      //stdoutRequest.stream.pipe(process.stdout);
-      return StreamPromise(stdoutRequest.payload, {
-        id: before.info.id,
-        name: 'stdout'
-      });
-    };
-
-    const stderrEndpoint = new endpoint.ReceiveEndpoint('stderr-test');
-    sys.endpoints.stderr.connected = stderrEndpoint;
-
-    stderrEndpoint.receive = (request, before) => {
-      stderrRequest = request;
-      return StreamPromise(request.payload, {
-        id: before.info.id,
-        name: 'stderr'
-      });
-    };
+    out1Endpoint.receive = (request, before) => {};
 
     manager = m;
     done();
@@ -64,11 +55,11 @@ before(done => {
 });
 
 it('test spec', () => {
-  describe('static', () => testStep.checkStepStatic(manager, sys));
+  describe('static', () => testStep.checkStepStatic(manager, aggregate));
 
   describe('live-cycle', () => {
     let wasRunning = false;
-    testStep.checkStepLivecycle(manager, sys, (step, state, livecycle, done) => {
+    testStep.checkStepLivecycle(manager, aggregate, (step, state, livecycle, done) => {
       if (state === 'running' && !wasRunning) {
         wasRunning = true;
       }
