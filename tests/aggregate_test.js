@@ -16,12 +16,9 @@ function StreamPromise(stream, result) {
   return new Promise((fullfilled, rejected) => stream.on('end', () => fullfilled(result)));
 }
 
-
 let aggregate;
 let manager;
 let inEndpoint;
-let out1Endpoint;
-let out2Endpoint;
 
 before(done => {
   ksm.manager({}, [require('../aggregate')]).then(m => {
@@ -44,14 +41,19 @@ before(done => {
     inEndpoint = new endpoint.SendEndpoint('in-test');
     inEndpoint.connected = aggregate.endpoints.in;
 
-    out1Endpoint = new endpoint.ReceiveEndpoint('out1-test');
-    aggregate.endpoints.out1.connected = out1Endpoint;
-
-    out1Endpoint.receive = (request, before) => {};
+    for (const o of['out1', 'out2']) {
+      const outEndpoint = new endpoint.ReceiveEndpoint(`${o}-test`);
+      aggregate.endpoints[o].connected = outEndpoint;
+      outEndpoint.receive = request => {
+        return Promise.resolve({
+          [o]: `value of ${o}`
+        });
+      };
+    }
 
     manager = m;
     done();
-  });
+  }).catch(console.log);
 });
 
 it('test spec', () => {
@@ -60,13 +62,24 @@ it('test spec', () => {
   describe('live-cycle', () => {
     let wasRunning = false;
     testStep.checkStepLivecycle(manager, aggregate, (step, state, livecycle, done) => {
+
       if (state === 'running' && !wasRunning) {
         wasRunning = true;
-      }
 
-      if (state === 'stopped' && wasRunning) {}
+        inEndpoint.receive({}).then(r => {
+          assert.deepEqual(r, {
+            "out1": "value of out1",
+            "out2": "value of out2"
+          });
+          //console.log(`response: ${JSON.stringify(r)}`);
+          done();
+        });
+
+        return;
+      }
 
       done();
     });
   });
+
 });
