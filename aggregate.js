@@ -12,12 +12,11 @@ exports.registerWithManager = manager => manager.registerStep(Object.assign({}, 
 
 		for (const en in this.endpoints) {
 			const e = this.endpoints[en];
-			if (e.isIn) {
-				inEndpoints.push(e);
-			}
-			if (e.isOut) {
-				// TODO how to skip ?
-				if (e.name !== 'log') {
+			if (!e.isDefault) {
+				if (e.isIn) {
+					inEndpoints.push(e);
+				}
+				if (e.isOut) {
 					outEndpoints.push(e);
 				}
 			}
