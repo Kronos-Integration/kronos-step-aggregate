@@ -6,7 +6,14 @@ exports.registerWithManager = manager => manager.registerStep(Object.assign({}, 
 	"name": "kronos-aggregate",
 	"description": "aggregates requests from several endpoints",
 
+	initialize(manager, name, stepDefinition, props) {
+		props.aggregate = {
+			value: stepDefinition.aggregate || "flat"
+		};
+	},
+
 	_start() {
+		const byEndpoint = true;
 		const inEndpoints = [];
 		const outEndpoints = [];
 
@@ -26,7 +33,14 @@ exports.registerWithManager = manager => manager.registerStep(Object.assign({}, 
 			ie.receive = request =>
 			Promise.all(outEndpoints.map(o => o.receive(request))).then(responses => {
 				const result = {};
-				responses.forEach(r => Object.assign(result, r));
+
+				if (this.aggregate === 'flat') {
+					responses.forEach(r => Object.assign(result, r));
+				} else {
+					for (let i = 0; i < outEndpoints.length; i++) {
+						result[outEndpoints[i].name] = responses[i];
+					}
+				}
 				return Promise.resolve(result);
 			})
 		);
