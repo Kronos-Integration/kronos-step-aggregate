@@ -24,13 +24,15 @@ function setup(mode, done) {
       name: 'myStep',
       type: 'kronos-aggregate',
       aggregate: mode,
-      endpoints: { in : { in : true
+      endpoints: { in : { in : true, opposite: true
         },
         out1: {
-            out: true
+            out: true,
+            opposite: true
           },
           out2: {
-            out: true
+            out: true,
+            opposite: false
           }
       }
     }, m);
@@ -38,13 +40,24 @@ function setup(mode, done) {
     inEndpoint = new endpoint.SendEndpoint('in-test');
     inEndpoint.connected = aggregate.endpoints.in;
 
+    aggregate.endpoints.in.opposite.receive = request => {
+      console.log(`in.opposite.receive: ${JSON.stringify(request)}`);
+    };
+
     for (const o of['out1', 'out2']) {
+      const oe = aggregate.endpoints[o];
       const outEndpoint = new endpoint.ReceiveEndpoint(`${o}-test`);
-      aggregate.endpoints[o].connected = outEndpoint;
+      oe.connected = outEndpoint;
 
       console.log(`${o} -> ${outEndpoint}`);
 
       outEndpoint.receive = request => {
+        if (oe.opposite) {
+          oe.opposite.receive({
+            [o]: `opposite value of ${o}`
+          });
+        }
+
         return Promise.resolve({
           [o]: `value of ${o}`
         });
@@ -106,6 +119,14 @@ describe('by-endpoint-name', () => {
     describe('live-cycle', () => {
       let wasRunning = false;
       testStep.checkStepLivecycle(manager, aggregate, (step, state, livecycle, done) => {
+
+        step.endpoints.in.opposite.receive = request => {
+          assert.deepEqual(request, {
+            out1: {
+              out1: 'opposite value of out1'
+            }
+          });
+        };
 
         if (state === 'running' && !wasRunning) {
           wasRunning = true;

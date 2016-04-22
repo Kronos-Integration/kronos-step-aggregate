@@ -29,6 +29,24 @@ exports.registerWithManager = manager => manager.registerStep(Object.assign({}, 
 			}
 		}
 
+		// route back all opposite endpoints
+		inEndpoints.forEach(ie => {
+			if (ie.opposite) {
+				outEndpoints.forEach(oe => {
+					if (oe.opposite) {
+						if (this.aggregate === 'flat') {
+							oe.opposite.receive = ie.opposite.receive;
+						} else {
+							oe.opposite.receive = request =>
+								ie.opposite.receive({
+									[oe.name]: request
+								});
+						}
+					}
+				});
+			}
+		});
+
 		inEndpoints.forEach(ie =>
 			ie.receive = request =>
 			Promise.all(outEndpoints.map(o => o.receive(request))).then(responses => {
