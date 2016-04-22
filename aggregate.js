@@ -12,7 +12,7 @@ exports.registerWithManager = manager => manager.registerStep(Object.assign({}, 
 		};
 	},
 
-	_start() {
+	finalize() {
 		const byEndpoint = true;
 		const inEndpoints = [];
 		const outEndpoints = [];
@@ -37,10 +37,13 @@ exports.registerWithManager = manager => manager.registerStep(Object.assign({}, 
 						if (this.aggregate === 'flat') {
 							oe.opposite.receive = ie.opposite.receive;
 						} else {
-							oe.opposite.receive = request =>
-								ie.opposite.receive({
+							oe.opposite.receive = request => {
+								// TODO how to enshure connection is present
+								if (!ie.opposite.isConnected) return Promise.reject(new Error(`${ie.opposite} is not connected`));
+								return ie.opposite.receive({
 									[oe.name]: request
 								});
+							};
 						}
 					}
 				});
