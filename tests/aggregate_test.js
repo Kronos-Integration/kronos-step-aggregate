@@ -1,7 +1,7 @@
 /* global describe, it, xit, before */
 /* jslint node: true, esnext: true */
 
-"use strict";
+'use strict';
 
 const chai = require('chai'),
   assert = chai.assert,
@@ -21,19 +21,17 @@ let aggregate, manager, inEndpoint;
 function setup(mode, done) {
   function _setup(m, mode) {
     aggregate = m.steps['kronos-aggregate'].createInstance({
-      name: "myStep",
-      type: "kronos-aggregate",
+      name: 'myStep',
+      type: 'kronos-aggregate',
       aggregate: mode,
-      endpoints: {
-        "in": {
-          "in": true
+      endpoints: { in : { in : true
         },
-        "out1": {
-          "out": true
-        },
-        "out2": {
-          "out": true
-        }
+        out1: {
+            out: true
+          },
+          out2: {
+            out: true
+          }
       }
     }, m);
 
@@ -83,8 +81,8 @@ describe('flat', () => {
           inEndpoint.receive({}).then(r => {
             console.log(`response: ${JSON.stringify(r)}`);
             assert.deepEqual(r, {
-              "out1": "value of out1",
-              "out2": "value of out2"
+              out1: 'value of out1',
+              out2: 'value of out2'
             });
             done();
           });
@@ -115,11 +113,11 @@ describe('by-endpoint-name', () => {
           inEndpoint.receive({}).then(r => {
             //console.log(r);
             assert.deepEqual(r, {
-              "out1": {
-                "out1": "value of out1"
+              out1: {
+                out1: 'value of out1'
               },
-              "out2": {
-                "out2": "value of out2"
+              out2: {
+                out2: 'value of out2'
               }
             });
             done();
