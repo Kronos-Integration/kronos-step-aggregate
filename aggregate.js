@@ -1,14 +1,14 @@
 /* jslint node: true, esnext: true */
 
-"use strict";
+'use strict';
 
 exports.registerWithManager = manager => manager.registerStep(Object.assign({}, require('kronos-step').Step, {
-	"name": "kronos-aggregate",
-	"description": "aggregates requests from several endpoints",
+	name: 'kronos-aggregate',
+	description: 'aggregates requests from several endpoints',
 
 	initialize(manager, name, stepDefinition, props) {
 		props.aggregate = {
-			value: stepDefinition.aggregate || "flat"
+			value: stepDefinition.aggregate || 'flat'
 		};
 	},
 
