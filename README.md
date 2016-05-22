@@ -11,6 +11,11 @@
 [![downloads](http://img.shields.io/npm/dm/kronos-step-aggregate.svg?style=flat-square)](https://npmjs.org/package/kronos-step-aggregate)
 [![Commitizen friendly](https://img.shields.io/badge/commitizen-friendly-brightgreen.svg)](http://commitizen.github.io/cz-cli/)
 
+
+Dispatches a request to several endpoints and aggregates the responses into one response
+
+![data flow](doc/overview.png)
+
 install
 =======
 
