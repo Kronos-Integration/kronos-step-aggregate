@@ -24,13 +24,13 @@ exports.registerWithManager = manager => manager.registerStep(Object.assign({}, 
 				options.opposite = new endpoint.SendEndpoint(name, this, {
 					hasBeenOpened() {
 							step.trace({
-								endpoint: this,
+								endpoint: this.identifier,
 								state: 'open'
 							});
 						},
 						willBeClosed() {
 							step.trace({
-								endpoint: this,
+								endpoint: this.identifier,
 								state: 'close'
 							});
 						}
