@@ -2,6 +2,8 @@
 
 'use strict';
 
+const endpoint = require('kronos-endpoint');
+
 exports.registerWithManager = manager => manager.registerStep(Object.assign({}, require('kronos-step').Step, {
 	name: 'kronos-aggregate',
 	description: 'aggregates requests from several endpoints',
@@ -10,6 +12,35 @@ exports.registerWithManager = manager => manager.registerStep(Object.assign({}, 
 		props.aggregate = {
 			value: stepDefinition.aggregate || 'flat'
 		};
+	},
+
+	endpointOptions(name, def) {
+		let options = {};
+
+		const step = this;
+
+		if (def.opposite) {
+			if (def.in) {
+				options.opposite = new endpoint.SendEndpoint(name, this, {
+					hasBeenOpened() {
+							step.trace({
+								endpoint: this,
+								state: 'open'
+							});
+						},
+						willBeClosed() {
+							step.trace({
+								endpoint: this,
+								state: 'close'
+							});
+						}
+				});
+			} else {
+				options.createOpposite = true;
+			}
+		}
+
+		return options;
 	},
 
 	finalize() {
