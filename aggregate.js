@@ -8,9 +8,9 @@ exports.registerWithManager = manager => manager.registerStep(Object.assign({}, 
 	name: 'kronos-aggregate',
 	description: 'aggregates requests from several endpoints',
 
-	initialize(manager, name, stepDefinition, props) {
+	initialize(manager, name, definition, props) {
 		props.aggregate = {
-			value: stepDefinition.aggregate || 'flat'
+			value: definition.aggregate || 'flat'
 		};
 	},
 
@@ -23,13 +23,13 @@ exports.registerWithManager = manager => manager.registerStep(Object.assign({}, 
 			if (def.in) {
 				options.opposite = new endpoint.SendEndpoint(name, this, {
 					hasBeenOpened() {
-							step.trace({
+							step.info({
 								endpoint: this.identifier,
 								state: 'open'
 							});
 						},
 						willBeClosed() {
-							step.trace({
+							step.info({
 								endpoint: this.identifier,
 								state: 'close'
 							});
@@ -66,7 +66,12 @@ exports.registerWithManager = manager => manager.registerStep(Object.assign({}, 
 				outEndpoints.forEach(oe => {
 					if (oe.opposite) {
 						if (this.aggregate === 'flat') {
-							oe.opposite.receive = ie.opposite.receive;
+							oe.opposite.receive = request => {
+								return ie.opposite.receive(request);
+							};
+
+							//oe.opposite.receive = ie.opposite.receive;
+							//console.log(`oe.opposite.receive: ${oe.opposite.receive}`);
 						} else {
 							oe.opposite.receive = request => {
 								// TODO how to enshure connection is present
@@ -85,7 +90,6 @@ exports.registerWithManager = manager => manager.registerStep(Object.assign({}, 
 			ie.receive = request =>
 			Promise.all(outEndpoints.map(o => o.receive(request))).then(responses => {
 				const result = {};
-
 				if (this.aggregate === 'flat') {
 					responses.forEach(r => Object.assign(result, r));
 				} else {

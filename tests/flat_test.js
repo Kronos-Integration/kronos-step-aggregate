@@ -32,11 +32,12 @@ function StreamPromise(stream, result) {
   return new Promise((fullfilled, rejected) => stream.on('end', () => fullfilled(result)));
 }
 
-let aggregate, manager, inEndpoint;
+let aggregate, inEndpoint, manager;
 
 function setup(mode, done) {
-  function _setup(m, mode) {
-    aggregate = m.steps['kronos-aggregate'].createInstance({
+  ksm.manager({}, [require('../aggregate')]).then(m => {
+    manager = m;
+    aggregate = manager.steps['kronos-aggregate'].createInstance({
       name: 'myStep',
       type: 'kronos-aggregate',
       aggregate: mode,
@@ -51,7 +52,7 @@ function setup(mode, done) {
             opposite: false
           }
       }
-    }, m);
+    }, manager);
 
     inEndpoint = new endpoint.SendEndpoint('in-test');
     inEndpoint.connected = aggregate.endpoints.in;
@@ -65,8 +66,6 @@ function setup(mode, done) {
       const outEndpoint = new endpoint.ReceiveEndpoint(`${o}-test`, nameIt('test'));
       oe.connected = outEndpoint;
 
-      //console.log(`${o} -> ${outEndpoint}`);
-
       outEndpoint.receive = request => {
         if (oe.opposite) {
           oe.opposite.receive({
@@ -79,18 +78,8 @@ function setup(mode, done) {
         });
       };
     }
-  }
-
-  if (manager) {
-    _setup(manager, mode);
     done();
-  } else {
-    ksm.manager({}, [require('../aggregate')]).then(m => {
-      _setup(m, mode);
-      manager = m;
-      done();
-    });
-  }
+  });
 }
 
 describe('flat', () => {
@@ -100,7 +89,7 @@ describe('flat', () => {
 
   it('response', () => {
     describe('static', () => testStep.checkStepStatic(manager, aggregate));
-    describe('live-cycle', () => {
+    describe('live-cycle', done => {
       let wasRunning = false;
       testStep.checkStepLivecycle(manager, aggregate, (step, state, livecycle, done) => {
 
@@ -108,54 +97,9 @@ describe('flat', () => {
           wasRunning = true;
 
           inEndpoint.receive({}).then(r => {
-            console.log(`response: ${JSON.stringify(r)}`);
-            /*assert.deepEqual(r, {
+            assert.deepEqual(r, {
               out1: 'value of out1',
               out2: 'value of out2'
-            });
-            */
-            done();
-          }).catch(e => console.log(e));
-
-          return;
-        }
-        done();
-      });
-    });
-  });
-});
-
-
-describe('by-endpoint-name', () => {
-  before(done => {
-    setup('by-endpoint-name', done);
-  });
-  it('response', () => {
-    describe('static', () => testStep.checkStepStatic(manager, aggregate));
-    describe('live-cycle', () => {
-      let wasRunning = false;
-      testStep.checkStepLivecycle(manager, aggregate, (step, state, livecycle, done) => {
-
-        step.endpoints.in.opposite.receive = request => {
-          assert.deepEqual(request, {
-            out1: {
-              out1: 'opposite value of out1'
-            }
-          });
-        };
-
-        if (state === 'running' && !wasRunning) {
-          wasRunning = true;
-
-          inEndpoint.receive({}).then(r => {
-            //console.log(`response: ${JSON.stringify(r)}`);
-            assert.deepEqual(r, {
-              out1: {
-                out1: 'value of out1'
-              },
-              out2: {
-                out2: 'value of out2'
-              }
             });
             done();
           });
