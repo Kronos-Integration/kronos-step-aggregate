@@ -19,6 +19,15 @@ exports.registerWithManager = manager => manager.registerStep(Object.assign({}, 
 
 		const step = this;
 
+		function outOpposite(f) {
+			for (const en in step.endpoints) {
+				const e = step.endpoints[en];
+				if (e.isOut && e.opposite && !e.isDefault) {
+					f(e.opposite);
+				}
+			}
+		}
+
 		if (def.opposite) {
 			if (def.in) {
 				options.opposite = new endpoint.SendEndpoint(name, this, {
@@ -27,12 +36,22 @@ exports.registerWithManager = manager => manager.registerStep(Object.assign({}, 
 								endpoint: this.identifier,
 								state: 'open'
 							});
+
+							if (this.aggregate === 'flat') {
+								outOpposite(e => e.receive = this.receive);
+							} else {
+								outOpposite(e => e.receive = request => this.receive({
+									[e.name]: request
+								}));
+							}
 						},
 						willBeClosed() {
 							step.info({
 								endpoint: this.identifier,
 								state: 'close'
 							});
+
+							outOpposite(e => e.receive = undefined);
 						}
 				});
 			} else {
@@ -59,32 +78,6 @@ exports.registerWithManager = manager => manager.registerStep(Object.assign({}, 
 				}
 			}
 		}
-
-		// route back all opposite endpoints
-		inEndpoints.forEach(ie => {
-			if (ie.opposite) {
-				outEndpoints.forEach(oe => {
-					if (oe.opposite) {
-						if (this.aggregate === 'flat') {
-							oe.opposite.receive = request => {
-								return ie.opposite.receive(request);
-							};
-
-							//oe.opposite.receive = ie.opposite.receive;
-							//console.log(`oe.opposite.receive: ${oe.opposite.receive}`);
-						} else {
-							oe.opposite.receive = request => {
-								// TODO how to enshure connection is present
-								if (!ie.opposite.isConnected) return Promise.reject(new Error(`${ie.opposite} is not connected`));
-								return ie.opposite.receive({
-									[oe.name]: request
-								});
-							};
-						}
-					}
-				});
-			}
-		});
 
 		inEndpoints.forEach(ie =>
 			ie.receive = request =>

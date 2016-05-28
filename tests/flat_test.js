@@ -37,6 +37,7 @@ let aggregate, inEndpoint, manager;
 function setup(mode, done) {
   ksm.manager({}, [require('../aggregate')]).then(m => {
     manager = m;
+
     aggregate = manager.steps['kronos-aggregate'].createInstance({
       name: 'myStep',
       type: 'kronos-aggregate',
@@ -54,7 +55,10 @@ function setup(mode, done) {
       }
     }, manager);
 
-    inEndpoint = new endpoint.SendEndpoint('in-test');
+    inEndpoint = new endpoint.SendEndpoint('in-test', nameIt('test'), {
+      createOpposite: true
+    });
+
     inEndpoint.connected = aggregate.endpoints.in;
 
     aggregate.endpoints.in.opposite.receive = request => {
@@ -95,6 +99,10 @@ describe('flat', () => {
 
         if (state === 'running' && !wasRunning) {
           wasRunning = true;
+
+          inEndpoint.opposite.receive = request => {
+            console.log(`opposite receive: ${request}`);
+          };
 
           inEndpoint.receive({}).then(r => {
             assert.deepEqual(r, {
