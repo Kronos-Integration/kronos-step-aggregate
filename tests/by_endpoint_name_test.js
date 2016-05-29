@@ -126,6 +126,8 @@ describe('by-endpoint-name', () => {
 
         done();
       });
+
+      inEndpoint.opposite.receive = undefined;
     });
   });
 });

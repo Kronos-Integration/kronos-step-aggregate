@@ -96,6 +96,13 @@ describe('flat', () => {
     describe('live-cycle', done => {
       let wasRunning = false;
       testStep.checkStepLivecycle(manager, aggregate, (step, state, livecycle, done) => {
+        step.endpoints.in.opposite.receive = request => {
+          assert.deepEqual(request, {
+            out1: {
+              out1: 'opposite value of out1'
+            }
+          });
+        };
 
         if (state === 'running' && !wasRunning) {
           wasRunning = true;
@@ -117,6 +124,8 @@ describe('flat', () => {
 
         done();
       });
+
+      inEndpoint.opposite.receive = undefined;
     });
   });
 });
