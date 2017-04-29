@@ -19,6 +19,8 @@ Dispatches a request to several endpoints and aggregates the responses into one 
 install
 =======
 
+[![Greenkeeper badge](https://badges.greenkeeper.io/Kronos-Integration/kronos-step-aggregate.svg)](https://greenkeeper.io/)
+
 With [npm](http://npmjs.org) do:
 
 ```shell
