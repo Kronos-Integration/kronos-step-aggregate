@@ -15,3 +15,50 @@
 [![XO code style](https://img.shields.io/badge/code_style-XO-5ed9c7.svg)](https://github.com/sindresorhus/xo)
 [![downloads](http://img.shields.io/npm/dm/kronos-step-aggregate.svg?style=flat-square)](https://npmjs.org/package/kronos-step-aggregate)
 [![Commitizen friendly](https://img.shields.io/badge/commitizen-friendly-brightgreen.svg)](http://commitizen.github.io/cz-cli/)
+
+Dispatches a request to several endpoints and aggregates the responses into one response
+
+![data flow](doc/overview.png)
+
+
+```json
+"my-aggregate-step": {
+  "type": "kronos-aggregate",
+  "aggregate": "by-endpoint-name",
+  "endpoints": {
+    "in": {
+      "in": true,
+      "opposite": true
+    },
+    "state": {
+      "out": true,
+      "opposite": true,
+      "target": "health-check:state"
+    },
+    "memory": {
+      "out": true,
+      "opposite": true,
+      "target": "health-check:memory"
+    },
+    "cpu": {
+      "out": true,
+      "opposite": true,
+      "target": "health-check:cpu"
+    }
+  }
+}
+```
+
+install
+=======
+
+With [npm](http://npmjs.org) do:
+
+```shell
+npm install kronos-step-aggregate
+```
+
+license
+=======
+
+BSD-2-Clause
