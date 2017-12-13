@@ -1,30 +1,3 @@
-(ksm = require('kronos-service-manager')),
-  (endpoint = require('kronos-endpoint'));
-
-/* simple owner with name */
-function nameIt(name) {
-  return {
-    toString() {
-      return name;
-    },
-    get name() {
-      return name;
-    },
-    endpointIdentifier(e) {
-      if (name === undefined) return undefined;
-      return `${this.name}/${e.name}`;
-    }
-  };
-}
-
-function StreamPromise(stream, result) {
-  return new Promise((fullfilled, rejected) =>
-    stream.on('end', () => fullfilled(result))
-  );
-}
-
-let aggregate, inEndpoint, manager;
-
 function setup(mode, done) {
   ksm.manager({}, [require('../aggregate')]).then(m => {
     manager = m;

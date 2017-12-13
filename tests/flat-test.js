@@ -1,7 +1,5 @@
-(ksm = require('kronos-service-manager')),
-  (endpoint = require('kronos-endpoint'));
+import {SendEndpoint} from 'kronos-endpoint';
 
-/* simple owner with name */
 function nameIt(name) {
   return {
     toString() {
@@ -25,10 +23,10 @@ function StreamPromise(stream, result) {
 
 let aggregate, inEndpoint, manager;
 
-function setup(mode, done) {
-  ksm.manager({}, [require('../aggregate')]).then(m => {
-    manager = m;
+async function setup(mode, done) {
+  const owner = {};
 
+  /*
     aggregate = manager.steps['kronos-aggregate'].createInstance(
       {
         name: 'myStep',
@@ -82,16 +80,15 @@ function setup(mode, done) {
         });
       };
     }
-    done();
   });
+*/
+  return {owner, step};
+
 }
 
-describe('flat', () => {
-  before(done => {
-    setup('flat', done);
-  });
+test('flat', t => {
+  {} = await setup('flat');
 
-  it('response', () => {
     describe('static', () => testStep.checkStepStatic(manager, aggregate));
     describe('live-cycle', done => {
       let wasRunning = false;
