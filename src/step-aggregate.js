@@ -8,36 +8,43 @@ export class AggregateStep extends Step {
   static get description() {
     return 'aggregates requests from several endpoints';
   }
+
   static get configurationAttributes() {
     return createAttributes({
       aggregate: {
         type: 'string',
-        description: 'flat means all results will be collected as attributes in the resulting object',
+        description:
+          'flat means all results will be collected as attributes in the resulting object',
         default: 'flat'
       }
     });
   }
-  
+
   constructor(...args) {
     super(...args);
-    
-    cont outEndpoints = this.outEndpoints;
-      
-    this.inEndpoints.filter(e => !e.isDefault).forEach(ie =>
-      ie.receive = async request => {
-         const responses = await Promise.all(outEndpoints.map(o => o.receive(request)));
-         if (this.aggregate === 'flat') {
-           return responses.reduce((a,c) => Object.assign(a, c),{});
-         }
-             
-         const result = {};
-         for (let i = 0; i < outEndpoints.length; i++) {
-           result[outEndpoints[i].name] = responses[i];
-         }
-         return result;
-      });
-   }
-      
+
+    const outEndpoints = this.outEndpoints;
+
+    this.inEndpoints.filter(e => !e.isDefault).forEach(
+      ie =>
+        (ie.receive = async request => {
+          const responses = await Promise.all(
+            outEndpoints.map(o => o.receive(request))
+          );
+          if (this.aggregate === 'flat') {
+            return responses.reduce((a, c) => Object.assign(a, c), {});
+          }
+
+          const result = {};
+          for (let i = 0; i < outEndpoints.length; i++) {
+            result[outEndpoints[i].name] = responses[i];
+          }
+          return result;
+        })
+    );
+  }
+
+  /*
       endpointOptions(name, def) {
         let options = {};
 
@@ -89,6 +96,7 @@ export class AggregateStep extends Step {
 
         return options;
       }
+      */
 }
 
 export async function registerWithManager(manager) {
