@@ -1,4 +1,4 @@
-import {} from 'kronos-endpoint';
+import { SendEndpoint } from 'kronos-endpoint';
 import { Step } from 'kronos-step';
 
 export class AggregateStep extends Step {
@@ -44,59 +44,55 @@ export class AggregateStep extends Step {
     );
   }
 
-  /*
-      endpointOptions(name, def) {
-        let options = {};
+  endpointOptions(name, def) {
+    const options = super.endpointOptions(name, def);
+    const step = this;
 
-        const step = this;
-
-        function outOpposite(f) {
-          for (const en in step.endpoints) {
-            const e = step.endpoints[en];
-            if (e.isOut && e.opposite && !e.isDefault) {
-              f(e.opposite);
-            }
-          }
+    function outOpposite(f) {
+      for (const en in step.endpoints) {
+        const e = step.endpoints[en];
+        if (e.isOut && e.opposite && !e.isDefault) {
+          f(e.opposite);
         }
-
-        if (def.opposite) {
-          if (def.in) {
-            options.opposite = new endpoint.SendEndpoint(name, this, {
-              hasBeenOpened() {
-                step.info({
-                  endpoint: this.identifier,
-                  state: 'open'
-                });
-
-                if (this.aggregate === 'flat') {
-                  outOpposite(e => (e.receive = this.receive));
-                } else {
-                  outOpposite(
-                    e =>
-                      (e.receive = request =>
-                        this.receive({
-                          [e.name]: request
-                        }))
-                  );
-                }
-              },
-              willBeClosed() {
-                step.info({
-                  endpoint: this.identifier,
-                  state: 'close'
-                });
-
-                outOpposite(e => (e.receive = undefined));
-              }
-            });
-          } else {
-            options.createOpposite = true;
-          }
-        }
-
-        return options;
       }
-      */
+    }
+
+    if (def.opposite) {
+      if (def.in) {
+        options.opposite = new SendEndpoint(name, this, {
+          hasBeenOpened() {
+            step.info({
+              endpoint: this.identifier,
+              state: 'open'
+            });
+
+            if (this.aggregate === 'flat') {
+              outOpposite(e => (e.receive = this.receive));
+            } else {
+              outOpposite(
+                e =>
+                  (e.receive = request =>
+                    this.receive({
+                      [e.name]: request
+                    }))
+              );
+            }
+          },
+          willBeClosed() {
+            step.info({
+              endpoint: this.identifier,
+              state: 'close'
+            });
+
+            outOpposite(e => (e.receive = undefined));
+          }
+        });
+      } else {
+        options.createOpposite = true;
+      }
+    }
+    return options;
+  }
 }
 
 export async function registerWithManager(manager) {
