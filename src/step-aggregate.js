@@ -8,6 +8,15 @@ export class AggregateStep extends Step {
   static get description() {
     return 'aggregates requests from several endpoints';
   }
+  static get configurationAttributes() {
+    return createAttributes({
+      aggregate: {
+        type: 'string',
+        description: ''
+        default: 'flat'
+      }
+    });
+  }
 }
 
 export async function registerWithManager(manager) {
@@ -15,11 +24,6 @@ export async function registerWithManager(manager) {
 }
 
 /*
-        props.aggregate = {
-          value: definition.aggregate || 'flat'
-        };
-      },
-
       endpointOptions(name, def) {
         let options = {};
 
@@ -106,6 +110,5 @@ export async function registerWithManager(manager) {
                 }
               ))
         );
-
 */
 
