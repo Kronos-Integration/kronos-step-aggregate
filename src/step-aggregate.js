@@ -12,18 +12,32 @@ export class AggregateStep extends Step {
     return createAttributes({
       aggregate: {
         type: 'string',
-        description: ''
+        description: 'flat means all results will be collected as attributes in the resulting object',
         default: 'flat'
       }
     });
   }
-}
-
-export async function registerWithManager(manager) {
-  return manager.registerStep(AggregateStep);
-}
-
-/*
+  
+  constructor(...args) {
+    super(...args);
+    
+    cont outEndpoints = this.outEndpoints;
+      
+    this.inEndpoints.filter(e => !e.isDefault).forEach(ie =>
+      ie.receive = async request => {
+         const responses = await Promise.all(outEndpoints.map(o => o.receive(request)));
+         if (this.aggregate === 'flat') {
+           return responses.reduce((a,c) => Object.assign(a, c),{});
+         }
+             
+         const result = {};
+         for (let i = 0; i < outEndpoints.length; i++) {
+           result[outEndpoints[i].name] = responses[i];
+         }
+         return result;
+      });
+   }
+      
       endpointOptions(name, def) {
         let options = {};
 
@@ -74,41 +88,9 @@ export async function registerWithManager(manager) {
         }
 
         return options;
-      },
+      }
+}
 
-      finalize() {
-        const byEndpoint = true;
-        const inEndpoints = [];
-        const outEndpoints = [];
-
-        for (const en in this.endpoints) {
-          const e = this.endpoints[en];
-          if (!e.isDefault) {
-            if (e.isIn) {
-              inEndpoints.push(e);
-            }
-            if (e.isOut) {
-              outEndpoints.push(e);
-            }
-          }
-        }
-
-        inEndpoints.forEach(
-          ie =>
-            (ie.receive = request =>
-              Promise.all(outEndpoints.map(o => o.receive(request))).then(
-                responses => {
-                  const result = {};
-                  if (this.aggregate === 'flat') {
-                    responses.forEach(r => Object.assign(result, r));
-                  } else {
-                    for (let i = 0; i < outEndpoints.length; i++) {
-                      result[outEndpoints[i].name] = responses[i];
-                    }
-                  }
-                  return Promise.resolve(result);
-                }
-              ))
-        );
-*/
-
+export async function registerWithManager(manager) {
+  return manager.registerStep(AggregateStep);
+}
