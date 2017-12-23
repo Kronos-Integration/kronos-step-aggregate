@@ -7,21 +7,15 @@ test('by-endpoint-name', async t => {
 
   step.endpoints.in.opposite.receive = request => {
     t.deepEqual(request, {
-      out1: {
-        out1: 'opposite value of out1'
-      }
+      out1: 'opposite value of out1'
     });
   };
 
-  const result = await inEndpoint.receive({});
-  t.deepEqual(r, {
-    out1: {
-      out1: 'value of out1'
-    },
-    out2: {
-      out2: 'value of out2'
-    }
+  const result = await step.endpoints.in.receive({});
+  t.deepEqual(result, {
+    out1: 'value of out1',
+    out2: 'value of out2'
   });
 
-  inEndpoint.opposite.receive = undefined;
+  step.endpoints.in.opposite.receive = undefined;
 });

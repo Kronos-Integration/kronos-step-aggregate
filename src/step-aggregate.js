@@ -1,10 +1,18 @@
 import { SendEndpoint } from 'kronos-endpoint';
 import { Step } from 'kronos-step';
+import { createAttributes } from 'model-attributes';
 
+/**
+ * Aggregates messages from several endpoints
+ */
 export class AggregateStep extends Step {
+  /**
+   * @return {string} 'kronos-aggregate'
+   **/
   static get name() {
     return 'kronos-aggregate';
   }
+
   static get description() {
     return 'aggregates requests from several endpoints';
   }

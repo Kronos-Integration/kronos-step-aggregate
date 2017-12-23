@@ -1,3 +1,6 @@
+import { AggregateStep } from '../src/step-aggregate';
+import { SendEndpoint, ReceiveEndpoint } from 'kronos-endpoint';
+
 export function nameIt(name) {
   return {
     toString() {
@@ -19,65 +22,55 @@ export function StreamPromise(stream, result) {
   );
 }
 
-export async function setup(mode, done) {
+export async function setup(mode) {
   const owner = {};
-  const step;
-  
-  /*
-    aggregate = .createInstance(
-      {
-        name: 'myStep',
-        type: 'kronos-aggregate',
-        aggregate: mode,
-        endpoints: {
-          in: {
-            in: true,
-            opposite: true
-          },
-          out1: {
-            out: true,
-            opposite: true
-          },
-          out2: {
-            out: true,
-            opposite: false
-          }
+
+  const step = new AggregateStep(
+    {
+      name: 'myStep',
+      type: 'kronos-aggregate',
+      aggregate: mode,
+      endpoints: {
+        in: {
+          in: true,
+          opposite: true
+        },
+        out1: {
+          out: true,
+          opposite: true
+        },
+        out2: {
+          out: true,
+          opposite: false
         }
-      },
-      manager
-    );
+      }
+    },
+    owner
+  );
 
-    inEndpoint = new endpoint.SendEndpoint('in-test', nameIt('test'), {
-      createOpposite: true
-    });
+  const inEndpoint = new SendEndpoint('test-in', owner);
+  inEndpoint.connected = step.endpoints.in;
+  step.endpoints.in.opposite.receive = async request => {
+    console.log(`in.opposite.receive: ${JSON.stringify(request)}`);
+  };
 
-    inEndpoint.connected = aggregate.endpoints.in;
+  for (const o of ['out1', 'out2']) {
+    const oe = step.endpoints[o];
+    const outEndpoint = new ReceiveEndpoint(`${o}-test`, nameIt('test'));
+    oe.connected = outEndpoint;
 
-    aggregate.endpoints.in.opposite.receive = request => {
-      console.log(`in.opposite.receive: ${JSON.stringify(request)}`);
-    };
-
-    for (const o of ['out1', 'out2']) {
-      const oe = aggregate.endpoints[o];
-      const outEndpoint = new endpoint.ReceiveEndpoint(
-        `${o}-test`,
-        nameIt('test')
-      );
-      oe.connected = outEndpoint;
-
-      outEndpoint.receive = request => {
-        if (oe.opposite) {
-          oe.opposite.receive({
-            [o]: `opposite value of ${o}`
-          });
-        }
-
-        return Promise.resolve({
-          [o]: `value of ${o}`
+    outEndpoint.receive = async request => {
+      if (oe.opposite) {
+        oe.opposite.receive({
+          [o]: `opposite value of ${o}`
         });
+      }
+
+      return {
+        [o]: `value of ${o}`
       };
-    }
-  });
-*/
-  return { owner, step };
+    };
+  }
+
+  return { owner, step, inEndpoint };
 }

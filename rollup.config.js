@@ -7,5 +7,5 @@ export default {
     format: 'cjs'
   },
   plugins: [],
-  external: ['kronos-endpoint', 'kronos-step']
+  external: ['kronos-endpoint', 'kronos-step', 'model-attributes']
 };
