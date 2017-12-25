@@ -35,7 +35,9 @@ Dispatches a request to several endpoints and aggregates the responses into one 
 
 **Extends Step**
 
-Aggregates messages from several endpoints
+Aggregates messages from several endpoints.
+The incoming request is dispatched to all out endpoints and the results
+are combined into one result.
 
 **Parameters**
 
