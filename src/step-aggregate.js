@@ -3,7 +3,9 @@ import { Step } from 'kronos-step';
 import { createAttributes } from 'model-attributes';
 
 /**
- * Aggregates messages from several endpoints
+ * Aggregates messages from several endpoints.
+ * The incoming request is dispatched to all out endpoints and the results
+ * are combined into one result.
  */
 export class AggregateStep extends Step {
   /**
@@ -31,7 +33,7 @@ export class AggregateStep extends Step {
   constructor(...args) {
     super(...args);
 
-    const outEndpoints = this.outEndpoints;
+    const outEndpoints = this.outEndpoints.filter(e => !e.isDefault);
 
     this.inEndpoints.filter(e => !e.isDefault).forEach(
       ie =>

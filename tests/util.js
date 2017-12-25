@@ -16,12 +16,6 @@ export function nameIt(name) {
   };
 }
 
-export function StreamPromise(stream, result) {
-  return new Promise((fullfilled, rejected) =>
-    stream.on('end', () => fullfilled(result))
-  );
-}
-
 export async function setup(mode) {
   const owner = {};
 
@@ -50,9 +44,6 @@ export async function setup(mode) {
 
   const inEndpoint = new SendEndpoint('test-in', owner);
   inEndpoint.connected = step.endpoints.in;
-  step.endpoints.in.opposite.receive = async request => {
-    console.log(`in.opposite.receive: ${JSON.stringify(request)}`);
-  };
 
   for (const o of ['out1', 'out2']) {
     const oe = step.endpoints[o];
@@ -60,12 +51,6 @@ export async function setup(mode) {
     oe.connected = outEndpoint;
 
     outEndpoint.receive = async request => {
-      if (oe.opposite) {
-        oe.opposite.receive({
-          [o]: `opposite value of ${o}`
-        });
-      }
-
       return {
         [o]: `value of ${o}`
       };
