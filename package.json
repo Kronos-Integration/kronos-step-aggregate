@@ -31,7 +31,7 @@
     "lint": "documentation lint src/step-aggregate.js"
   },
   "dependencies": {
-    "kronos-step": "^5.6.3"
+    "kronos-step": "^5.6.5"
   },
   "devDependencies": {
     "kronos-service-manager": "^3.5.10",
