@@ -1,6 +1,9 @@
 {
   "name": "kronos-step-aggregate",
   "version": "0.0.0-semantic-release",
+  "publishConfig": {
+    "access": "public"
+  },
   "main": "dist/step-aggregate.js",
   "module": "src/step-aggregate.js",
   "description": "step to aggregate requests from several endpoints",
