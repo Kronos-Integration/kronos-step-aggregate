@@ -1,7 +1,4 @@
 [![styled with prettier](https://img.shields.io/badge/styled_with-prettier-ff69b4.svg)](https://github.com/prettier/prettier)
-[![Build Status](https://secure.travis-ci.org/Kronos-Integration/kronos-step-aggregate.png)](http://travis-ci.org/Kronos-Integration/kronos-step-aggregate)
-[![codecov.io](http://codecov.io/github/Kronos-Integration/kronos-step-aggregate/coverage.svg?branch=master)](http://codecov.io/github/Kronos-Integration/kronos-step-aggregate?branch=master)
-[![Coverage Status](https://coveralls.io/repos/Kronos-Integration/kronos-step-aggregate/badge.svg)](https://coveralls.io/r/Kronos-Integration/kronos-step-aggregate)
 [![Known Vulnerabilities](https://snyk.io/test/github/Kronos-Integration/kronos-step-aggregate/badge.svg)](https://snyk.io/test/github/Kronos-Integration/kronos-step-aggregate)
 [![Commitizen friendly](https://img.shields.io/badge/commitizen-friendly-brightgreen.svg)](http://commitizen.github.io/cz-cli/)
 [![npm](https://img.shields.io/npm/v/kronos-step-aggregate.svg)](https://www.npmjs.com/package/kronos-step-aggregate)
@@ -11,6 +8,9 @@
 [![minified size](https://badgen.net/bundlephobia/min/kronos-step-aggregate)](https://bundlephobia.com/result?p=kronos-step-aggregate)
 [![downloads](http://img.shields.io/npm/dm/kronos-step-aggregate.svg?style=flat-square)](https://npmjs.org/package/kronos-step-aggregate)
 [![GitHub Issues](https://img.shields.io/github/issues/Kronos-Integration/kronos-step-aggregate.svg?style=flat-square)](https://github.com/Kronos-Integration/kronos-step-aggregate/issues)
+[![Build Status](https://secure.travis-ci.org/Kronos-Integration/kronos-step-aggregate.png)](http://travis-ci.org/Kronos-Integration/kronos-step-aggregate)
+[![codecov.io](http://codecov.io/github/Kronos-Integration/kronos-step-aggregate/coverage.svg?branch=master)](http://codecov.io/github/Kronos-Integration/kronos-step-aggregate?branch=master)
+[![Coverage Status](https://coveralls.io/repos/Kronos-Integration/kronos-step-aggregate/badge.svg)](https://coveralls.io/r/Kronos-Integration/kronos-step-aggregate)
 
 # kronos-step-aggregate
 
